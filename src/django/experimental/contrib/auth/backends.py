@@ -13,9 +13,14 @@ class DualAuthenticationBackend(ModelBackend):
         if username is None:
             username = kwargs.get(UserModel.USERNAME_FIELD)
 
+        if username is None or password is None:
+            return None
+
         try:
-            # Query the database for a matching username OR email
-            user = UserModel.objects.get(Q(username__iexact=username) | Q(email__iexact=username))
+            user = UserModel._default_manager.get(
+                Q(**{UserModel.USERNAME_FIELD + "__iexact": username}) |
+                Q(email__iexact=username)
+            )
         except UserModel.DoesNotExist:
             UserModel().set_password(password)
             return None

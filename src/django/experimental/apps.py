@@ -1,6 +1,7 @@
 from django.apps import AppConfig
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+from .utils import AVAILABLE_EXPERIMENTS
 
 
 class ExperimentalConfig(AppConfig):
@@ -20,6 +21,6 @@ class ExperimentalConfig(AppConfig):
             return
 
         for flag_name, is_enabled in flags.items():
-            if is_enabled and flag_name.startswith("ENABLE_"):
-                experiment_name = flag_name.replace("ENABLE_", "").lower()
+            if is_enabled and flag_name in AVAILABLE_EXPERIMENTS:
+                experiment_name = flag_name.replace("ENABLE_", "")
                 print(f"[Django Experimental] Active and monitoring '{experiment_name}' environment.")
