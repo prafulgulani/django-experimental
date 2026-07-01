@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 from django.db.models import Q
+from django.experimental.flags import is_experiment_enabled
 
 
 class DualAuthenticationBackend(ModelBackend):
@@ -9,6 +10,9 @@ class DualAuthenticationBackend(ModelBackend):
     either username or email address.
     """
     def authenticate(self, request, username=None, password=None, **kwargs):
+        if not is_experiment_enabled("ENABLE_NEWAUTH"):
+            return None
+        
         UserModel = get_user_model()
         if username is None:
             username = kwargs.get(UserModel.USERNAME_FIELD)
