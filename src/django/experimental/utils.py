@@ -3,6 +3,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 AVAILABLE_EXPERIMENTS = {
     "ENABLE_NEWAUTH": "django.experimental.contrib.auth",
+    "ENABLE_SUPERUSER_REQUIRED": "django.experimental.contrib.admin.views.decorators",
 }
 
 def register_experimental_features(settings):
