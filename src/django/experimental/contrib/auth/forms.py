@@ -1,14 +1,14 @@
 import unicodedata
 from django import forms
 from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import (
+    ReadOnlyPasswordHashField,
+    UserChangeForm as DjangoUserChangeForm,
+    UserCreationForm as DjangoUserCreationForm,
+)
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.forms import (
-    UserCreationForm as DjangoUserCreationForm, 
-    UserChangeForm as DjangoUserChangeForm
-)
-from django.contrib.auth.forms import ReadOnlyPasswordHashField
-from .models import AbstractUser
+from .models import User
 
 
 class UsernameField(forms.CharField):
@@ -28,7 +28,7 @@ class UsernameField(forms.CharField):
 
 class UserCreationForm(DjangoUserCreationForm):
     class Meta(DjangoUserCreationForm.Meta):
-        model = AbstractUser
+        model = User
         fields = ("username", "email", "name")
         field_classes = {"username": UsernameField}
 
@@ -36,7 +36,8 @@ class UserCreationForm(DjangoUserCreationForm):
         super().__init__(*args, **kwargs)
         UserModel = get_user_model()
         self._meta.model = UserModel
-        self.fields["username"].model = UserModel
+        if "username" in self.fields:
+            self.fields["username"].model = UserModel
 
     def clean_username(self):
         username = self.cleaned_data.get("username")
@@ -57,12 +58,12 @@ class UserChangeForm(DjangoUserChangeForm):
         label=_("Password"),
         help_text=_(
             "Raw passwords are not stored, so there is no way to see "
-            "the user’s password."
+            "the user's password."
         ),
     )
 
     class Meta(DjangoUserChangeForm.Meta):
-        model = AbstractUser
+        model = User
         fields = ("username", "email", "name", "is_active", "is_staff")
         field_classes = {"username": UsernameField}
 
@@ -70,4 +71,5 @@ class UserChangeForm(DjangoUserChangeForm):
         super().__init__(*args, **kwargs)
         UserModel = get_user_model()
         self._meta.model = UserModel
-        self.fields["username"].model = UserModel
+        if "username" in self.fields:
+            self.fields["username"].model = UserModel
